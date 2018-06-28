@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Giphy Board</title>
+
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+
+		<style type="text/css">
+		body{
+			color: #ffffff;
+			font-size: 1.5em;
+			text-align: center;
+			background-color: #000000ec;
+			text-transform: uppercase;
+			
+		}
+
+		
+			.jumbotron {
+				text-align: center;
+			  animation:rainbowheading 2s;
+			  animation-iteration-count: infinite;
+		  
+			}
+		  
+			@keyframes rainbowheading
+			{
+			  0%   {size:10%;}
+			   
+			  50%  {size:100%;}
+			      
+			  100% {size:10%;}
+				
+			  0%   {background-color: red;}
+			  16%  {background-color: orange;} 
+			  32%  {background-color: yellow;} 
+			  48%  {background-color: green;}  
+			  64%  {background-color: blue;}     
+			  80%  {background-color: indigo;}
+			  90%  {background-color:violet;}     
+			  100% {background-color: red;}
+			}
+			
+			button{
+				margin:10px;
+				text-align: center;
+				float: left;
+				background-color: rgba(81, 81, 236, 0.548);
+				border:2px;
+				border-radius:30px;
+			}
+
+			#tag-input{
+				border:2px;
+				border-radius:30px;
+
+			}
+			
+			#addgif{
+				margin:10px;
+				background-color:grey;
+				border:2px;
+				border-radius:30px;
+			}
+
+			img{
+				float:none;
+				border:2px;
+				border-style: groove;
+			}
+
+			
+
+		</style>
+		
+
+	</head>
+	
+	<body>
+
+		<div class="jumbotron">
+			<h1>Giphy Board</h1>
+		</div>
+
+		<div class="container">
+			
+			
+			<form id = "search">
+				<input type="text" id = "tag-input" value="Get Giphying!">
+				<input id="addgif" type="submit" value="Add Gifs!">
+				<!-- <input id="rem-tag" type="submit" value="Remove Gifs!"> -->
+			</form>
+
+			<div id = "buttons"></div>
+		</div>
+		<div id="gif-view" style="height: 100;width: 100"></div>
+		<!-- <div id = "rate-view"></div> -->
+
+
+
+
+	
+	<script type="text/javascript">
+
+		
+
+
+
+
+
+var tags = ["Game of Thrones", "Firefly" ,"Lethal Weapon","Meme Cat"];
+
+function displayGif(){
+	$("#gif-view").empty();
+	var gif = $(this).attr("data-name");
+		
+	var queryURL = "https://api.giphy.com/v1/gifs/search?q="+ gif + "&api_key=aNYI5DVsnzSfNjsx09VUvZ0lJWSG8FS2&limit=10";  
+
+	$.ajax({
+		url:queryURL,
+		method: "GET"
+	}).done(function(response){
+
+		for(i=0;i<response.data.length;i++){
+
+		var div = $("<div>");
+		var animateURL = response.data[i].images.original.url;
+		var stillURL = response.data[i].images.original_still.url;
+		var image = $("<img>").attr("src", stillURL);
+		image.attr("alt","gif");
+		image.attr("data-state","still");
+		image.attr("data-still",stillURL);
+		image.attr("data-animate",animateURL);
+		image.addClass("gif");
+		$("#gif-view").append(div);
+		$("#gif-view").append("<br>");
+		var rating = response.data[i].rating;
+		var ratediv = $("<div>");
+		var p = $("<p>").html("Rating: " + rating);
+		ratediv.html(p);
+		div.append(image);
+		$("#gif-view").append(ratediv);
+		$("#gif-view").append("<br>");
+
+	}
+	});
+
+	$(document).on('click',".gif", function(){
+
+		var state = $(this).attr("data-state");
+
+		if(state === "still"){
+			$(this).attr("src", $(this).attr("data-animate"));
+			$(this).attr("data-state", "animate");
+		}else{
+			$(this).attr("src", $(this).attr("data-still"));
+			$(this).attr("data-state", "still");
+		}
+
+
+	});
+
+
+
+
+}
+
+
+function renderButtons(){
+	$("#buttons").empty();
+	for(i=0;i<tags.length;i++){
+		var a = $("<button>");
+		a.attr("data-name", tags[i]);
+		a.addClass("tag");
+		a.text(tags[i]);
+		$("#buttons").append(a);
+	}
+}
+
+
+
+$("#addgif").on("click", function(event){
+	if($("#tag-input").val()!==''){
+		event.preventDefault();
+
+	var tag = $("#tag-input").val().trim();
+	tags.push(tag);
+	renderButtons();
+
+	}
+	
+
+});
+
+
+renderButtons();
+
+$(document).on("click",".tag",displayGif);
+
+</script>
+
+
+	</body>
+</html>
